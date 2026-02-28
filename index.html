@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeRoute · Smart Emergency Evacuation System</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HEADER  — logo · floor tabs · status bar
+  ══════════════════════════════════════════════════════════ -->
+  <header>
+
+    <div class="logo">
+      <svg class="logo-tri" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <polygon points="10,2 20,19 0,19" stroke="#00C88C" stroke-width="1.5" fill="none"/>
+        <line x1="10" y1="7"  x2="10" y2="13" stroke="#00C88C" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="10" cy="16" r="1" fill="#00C88C"/>
+      </svg>
+      LifeRoute
+    </div>
+
+    <div class="ftabs" id="ftabs">
+      <button class="ftab"        data-floor="B" >BSMT</button>
+      <button class="ftab active" data-floor="GF">GND FL</button>
+      <button class="ftab"        data-floor="F1">FLOOR 1</button>
+      <button class="ftab"        data-floor="F2">FLOOR 2</button>
+      <button class="ftab"        data-floor="F3">FLOOR 3</button>
+    </div>
+
+    <div class="hdr-r">
+      <div id="strip" role="alert" aria-live="assertive">
+        <div class="sdot-red"></div>⚠ EMERGENCY
+      </div>
+      <div class="spill">
+        <div class="sdot ok" id="sdot"></div>
+        <span id="stext">NORMAL</span>
+      </div>
+      <div class="ecount">EXITS <span id="ecount">—</span></div>
+    </div>
+
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       APP  — left panel · map · right panel
+  ══════════════════════════════════════════════════════════ -->
+  <div class="app">
+
+    <!-- ── LEFT PANEL ── -->
+    <aside class="panel pl">
+
+      <!-- Position selector -->
+      <div class="psec">
+        <div class="ptitle">Your Position</div>
+        <div class="selwrap">
+          <select id="posSelect">
+            <option value="">— Select your room —</option>
+          </select>
+          <div class="selarr">▼</div>
+        </div>
+      </div>
+
+      <!-- Hazard legend -->
+      <div class="psec">
+        <div class="ptitle">Hazard Types</div>
+        <div class="hkeys">
+          <span class="hk hk-fire" >🔥 FIRE</span>
+          <span class="hk hk-smoke">💨 SMOKE</span>
+          <span class="hk hk-blk"  >🚧 BLOCKED</span>
+          <span class="hk hk-cls"  >🔒 CLOSED</span>
+          <span class="hk hk-xblk" >🚫 EXIT BLOCKED</span>
+        </div>
+        <p class="hnote">
+          Fire / Smoke / Closed → node disabled<br>
+          Blocked → path through node invalid<br>
+          Exit Blocked → exit point disabled
+        </p>
+      </div>
+
+      <!-- Room hazard controls -->
+      <div class="psec roomhaz-sec">
+        <div class="ptitle">Room Hazards</div>
+        <div class="pscroll" id="roomList"></div>
+      </div>
+
+      <!-- Exit status -->
+      <div class="psec">
+        <div class="ptitle">
+          Exit Status
+          <span id="floorExitNote" class="exit-note"></span>
+        </div>
+        <div id="exitList"></div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAP ── -->
+    <main class="map-area">
+      <div class="map-wrap">
+        <svg id="mapSvg" viewBox="0 0 720 510" aria-label="Interactive evacuation map"></svg>
+      </div>
+      <div class="mleg" aria-label="Map legend">
+        <div class="li"><div class="ldot" style="background:var(--blue)"  ></div>YOU</div>
+        <div class="li"><div class="ldot" style="background:var(--green)" ></div>SAFE / PATH</div>
+        <div class="li"><div class="ldot" style="background:var(--red)"   ></div>FIRE</div>
+        <div class="li"><div class="ldot" style="background:var(--orange)"></div>SMOKE</div>
+        <div class="li"><div class="ldot" style="background:var(--yellow)"></div>BLOCKED</div>
+        <div class="li"><div class="ldot" style="background:var(--purple)"></div>CLOSED</div>
+        <div class="li li-note">CLICK ROOM = SET POSITION</div>
+      </div>
+    </main>
+
+    <!-- ── RIGHT PANEL ── -->
+    <aside class="panel pr">
+
+      <!-- Active hazard chips -->
+      <div class="psec">
+        <div class="ptitle">Active Hazards</div>
+        <div class="ahaz" id="hazTags" aria-live="polite">
+          <span class="none-label">// none active</span>
+        </div>
+      </div>
+
+      <!-- Route result card -->
+      <div class="psec">
+        <div class="ptitle">Route Result</div>
+        <div id="routeBox" class="rbox">
+          <div class="rbtag">// AWAITING POSITION INPUT</div>
+          <p class="rbox-hint">Select your room to compute safest evacuation route.</p>
+        </div>
+      </div>
+
+      <!-- Step-by-step directions -->
+      <div class="psec steps-sec">
+        <div class="ptitle">Step-by-Step Directions</div>
+        <div class="pscroll">
+          <ul class="steps" id="stepList" aria-live="polite"></ul>
+        </div>
+      </div>
+
+    </aside>
+
+  </div><!-- /.app -->
+
+  <!--
+    Script load order is important:
+      1. data.js    – building layout, room definitions, edge graph
+      2. routing.js – Dijkstra pathfinder, hazard exclusion logic
+      3. render.js  – SVG drawing, DOM panel builders
+      4. main.js    – event wiring, app bootstrap
+  -->
+  <script src="js/data.js"></script>
+  <script src="js/routing.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

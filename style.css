@@ -1,0 +1,670 @@
+/* =============================================================
+   LifeRoute — Emergency Evacuation System
+   css/style.css
+   ============================================================= */
+
+/* ─────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS
+───────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --bg:      #07090B;
+  --panel:   #0C1014;
+  --surface: #101519;
+  --border:  rgba(0, 200, 140, 0.14);
+
+  /* Accent palette */
+  --green:  #00C88C;  --gbg: rgba(0,   200, 140, 0.09);
+  --red:    #FF3535;  --rbg: rgba(255,  53,  53, 0.12);
+  --orange: #FF8800;  --obg: rgba(255, 136,   0, 0.11);
+  --yellow: #FFD000;  --ybg: rgba(255, 208,   0, 0.09);
+  --purple: #BB77FF;  --pbg: rgba(187, 119, 255, 0.09);
+  --blue:   #00AAFF;
+
+  /* Typography */
+  --text:  #C8DCDA;
+  --muted: rgba(200, 220, 218, 0.38);
+  --mono:  'Share Tech Mono', monospace;
+  --sans:  'Rajdhani', sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. RESET & BASE
+───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. ANIMATIONS
+───────────────────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes march {
+  to { stroke-dashoffset: -30; }
+}
+
+@keyframes ring-pulse {
+  0%, 100% { r: 12; opacity: 0.5; }
+  50%       { r: 17; opacity: 0.1; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. HEADER
+───────────────────────────────────────────────────────────── */
+header {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+/* Logo */
+.logo {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.logo-tri {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Floor tabs */
+.ftabs {
+  display: flex;
+  gap: 2px;
+}
+
+.ftab {
+  padding: 3px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.ftab.active {
+  background: var(--gbg);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.ftab:hover:not(.active) {
+  color: var(--text);
+  border-color: rgba(0, 200, 140, 0.3);
+}
+
+/* Header right group */
+.hdr-r {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* Emergency alert strip */
+#strip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border: 1px solid rgba(255, 53, 53, 0.6);
+  background: rgba(220, 30, 30, 0.18);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+#strip.on {
+  display: flex;
+  animation: fade-in 0.25s ease;
+}
+
+#strip .sdot-red {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 5px var(--red);
+  animation: pulse 0.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Status pill */
+.spill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 12px;
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.sdot.ok   { background: var(--green);  box-shadow: 0 0 7px var(--green);  animation: pulse 2s   ease-in-out infinite; }
+.sdot.warn { background: var(--orange); box-shadow: 0 0 7px var(--orange); animation: pulse 0.8s ease-in-out infinite; }
+.sdot.crit { background: var(--red);    box-shadow: 0 0 7px var(--red);    animation: pulse 0.4s ease-in-out infinite; }
+
+/* Exit counter */
+.ecount {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.ecount span {
+  color: var(--green);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. APP GRID LAYOUT
+───────────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 255px 1fr 275px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. SIDE PANELS (shared)
+───────────────────────────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pl { border-right: 1px solid var(--border); }
+.pr { border-left:  1px solid var(--border); }
+
+/* Scrollable inner zones */
+.pscroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar       { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Panel section wrapper */
+.psec {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Sections that should grow to fill remaining space */
+.roomhaz-sec,
+.steps-sec {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section heading bar */
+.ptitle {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ptitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. POSITION SELECTOR
+───────────────────────────────────────────────────────────── */
+.selwrap {
+  position: relative;
+}
+
+.selwrap select {
+  width: 100%;
+  padding: 8px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: border-color 0.2s;
+}
+
+.selwrap select:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.selarr {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--green);
+  pointer-events: none;
+  font-size: 9px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. HAZARD TYPE LEGEND
+───────────────────────────────────────────────────────────── */
+.hkeys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 9px;
+}
+
+.hk {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border: 1px solid;
+  border-radius: 1px;
+}
+
+.hk-fire  { color: var(--red);    border-color: rgba(255,  53,  53, 0.4); background: var(--rbg); }
+.hk-smoke { color: var(--orange); border-color: rgba(255, 136,   0, 0.4); background: var(--obg); }
+.hk-blk   { color: var(--yellow); border-color: rgba(255, 208,   0, 0.4); background: var(--ybg); }
+.hk-cls   { color: var(--purple); border-color: rgba(187, 119, 255, 0.4); background: var(--pbg); }
+.hk-xblk  { color: var(--red);    border-color: rgba(255,  53,  53, 0.4); background: var(--rbg); }
+
+.hnote {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. ROOM HAZARD ROWS
+───────────────────────────────────────────────────────────── */
+.rrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  margin: 0 3px 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.rrow.h-fire    { border-color: var(--red);    background: var(--rbg); }
+.rrow.h-smoke   { border-color: var(--orange); background: var(--obg); }
+.rrow.h-blocked { border-color: var(--yellow); background: var(--ybg); }
+.rrow.h-closed  { border-color: var(--purple); background: var(--pbg); }
+
+.rico {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rinfo       { flex: 1; min-width: 0; }
+.rname       { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rsub        { font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 1px; margin-top: 1px; }
+
+.hdd {
+  padding: 2px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 68px;
+  transition: border-color 0.2s;
+}
+
+.hdd:focus { outline: none; border-color: var(--green); }
+
+/* ─────────────────────────────────────────────────────────────
+   10. EXIT STATUS ROWS
+───────────────────────────────────────────────────────────── */
+.xrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  margin-bottom: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.xrow.xblk { border-color: var(--red);   background: var(--rbg); }
+.xrow.xtgt { border-color: var(--green); background: var(--gbg); }
+
+.xbadge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.xb-o { border-color: rgba(0,   200, 140, 0.35); color: var(--green); }
+.xb-b { border-color: rgba(255,  53,  53, 0.5);  color: var(--red); }
+.xb-t { border-color: var(--green); color: var(--green); background: var(--gbg); font-weight: 700; }
+
+.exit-note {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-weight: normal;
+  text-transform: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   11. MAP AREA
+───────────────────────────────────────────────────────────── */
+.map-area {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#mapSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Map legend bar */
+.mleg {
+  display: flex;
+  gap: 12px;
+  padding: 7px 14px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.li       { display: flex; align-items: center; gap: 4px; }
+.li-note  { margin-left: 6px; }
+.ldot     { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   12. SVG ROOM & EXIT CLASSES
+───────────────────────────────────────────────────────────── */
+.room {
+  cursor: pointer;
+  transition: fill 0.25s, stroke 0.25s;
+}
+
+.room:hover { filter: brightness(1.3); }
+
+.r-clear   { fill: rgba(0,   200, 140, 0.05); stroke: rgba(0, 200, 140, 0.25); stroke-width: 1; }
+.r-fire    { fill: rgba(255,  53,  53, 0.22); stroke: var(--red);    stroke-width: 2; }
+.r-smoke   { fill: rgba(255, 136,   0, 0.18); stroke: var(--orange); stroke-width: 2; }
+.r-blocked { fill: rgba(255, 208,   0, 0.10); stroke: var(--yellow); stroke-width: 2; stroke-dasharray: 5 3; }
+.r-closed  { fill: rgba(187, 119, 255, 0.10); stroke: var(--purple); stroke-width: 2; }
+.r-sel     { fill: rgba(0,   170, 255, 0.15); stroke: var(--blue);   stroke-width: 2.5; }
+.r-path    { fill: rgba(0,   200, 140, 0.09); stroke: rgba(0, 200, 140, 0.45); stroke-width: 1.5; }
+.r-stair   { fill: rgba(255, 255, 255, 0.02); stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; stroke-dasharray: 3 3; cursor: default; }
+.r-exit    { cursor: default; }
+
+/* SVG text labels */
+.rlbl {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  fill: rgba(200, 220, 218, 0.5);
+  transition: fill 0.2s;
+}
+
+.ll-fire  { fill: var(--red); }
+.ll-smoke { fill: var(--orange); }
+.ll-blk   { fill: var(--yellow); }
+.ll-cls   { fill: var(--purple); }
+.ll-sel   { fill: var(--blue); }
+.ll-path  { fill: rgba(0, 200, 140, 0.8); }
+.ll-exit  { fill: rgba(200, 220, 218, 0.35); }
+.ll-etgt  { fill: var(--green); }
+.ll-eblk  { fill: var(--red); }
+
+/* ─────────────────────────────────────────────────────────────
+   13. EVACUATION PATH (SVG animated dashes)
+───────────────────────────────────────────────────────────── */
+.evac-path {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 2.5;
+  stroke-dasharray: 9 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: march 0.9s linear infinite;
+  filter: drop-shadow(0 0 4px var(--green));
+  pointer-events: none;
+}
+
+/* User position ring */
+.u-ring {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 1.5;
+  animation: ring-pulse 2s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   14. RIGHT PANEL — hazard chips
+───────────────────────────────────────────────────────────── */
+.ahaz {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 20px;
+}
+
+.none-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.aht {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  animation: pop-in 0.15s ease;
+}
+
+.at-fire         { color: var(--red);    border-color: rgba(255,  53,  53, 0.4); background: var(--rbg); }
+.at-smoke        { color: var(--orange); border-color: rgba(255, 136,   0, 0.4); background: var(--obg); }
+.at-blocked      { color: var(--yellow); border-color: rgba(255, 208,   0, 0.4); background: var(--ybg); }
+.at-closed       { color: var(--purple); border-color: rgba(187, 119, 255, 0.4); background: var(--pbg); }
+.at-exit-blocked { color: var(--red);    border-color: rgba(255,  53,  53, 0.4); background: var(--rbg); }
+
+/* ─────────────────────────────────────────────────────────────
+   15. ROUTE RESULT BOX
+───────────────────────────────────────────────────────────── */
+.rbox {
+  padding: 11px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.rbox.found { border-color: var(--green); background: var(--gbg); }
+.rbox.fail  { border-color: var(--red);   background: var(--rbg); }
+
+.rbtag     { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-bottom: 5px; }
+.rbox-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 7px; }
+.rbxit     { font-size: 18px; font-weight: 700; color: var(--green); }
+.rbfail    { font-size: 15px; font-weight: 700; color: var(--red); }
+
+.rbmeta {
+  display: flex;
+  gap: 12px;
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.rbmeta span { color: var(--text); }
+
+/* Route breadcrumb chain */
+.chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.cn {
+  font-family: var(--mono);
+  font-size: 8px;
+  padding: 3px 7px;
+  border: 1px solid rgba(0, 200, 140, 0.22);
+  background: rgba(0, 200, 140, 0.04);
+  color: var(--text);
+}
+
+.cn.cs { border-color: rgba(0, 170, 255, 0.4); background: rgba(0, 170, 255, 0.08); color: var(--blue); }
+.cn.ce { border-color: var(--green); background: rgba(0, 200, 140, 0.18); color: var(--green); font-weight: 700; }
+.ca    { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+/* ─────────────────────────────────────────────────────────────
+   16. STEP-BY-STEP LIST
+───────────────────────────────────────────────────────────── */
+.steps { list-style: none; }
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  animation: fade-up 0.25s ease;
+}
+
+.si { font-size: 14px; flex-shrink: 0; width: 20px; text-align: center; padding-top: 1px; }
+.st { font-size: 13px; line-height: 1.5; }
+.st strong { color: var(--green); }
+
+.swarn {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--orange);
+  display: block;
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
