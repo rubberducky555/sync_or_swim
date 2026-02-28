@@ -1,4 +1,4 @@
-# LifeRoute 🚨
+# LifeRoute
 
 > **Smart Emergency Evacuation System** — A browser-based, multi-floor building evacuation tool that computes the shortest hazard-free escape route in real time.
 
